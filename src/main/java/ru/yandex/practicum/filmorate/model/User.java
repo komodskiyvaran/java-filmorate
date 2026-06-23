@@ -4,15 +4,17 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Film {
+public class User {
     private Long id;
     @NonNull
+    private String email;
+    @NonNull
+    private String login;
+    private LocalDate birthday;
     private String name;
-    private String description;
-    private LocalDate releaseDate;
-    private Long duration;
 }
