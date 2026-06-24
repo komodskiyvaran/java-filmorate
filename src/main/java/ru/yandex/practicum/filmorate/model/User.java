@@ -1,6 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
+import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
 
 import java.time.LocalDate;
 
@@ -11,10 +16,17 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class User {
     private Long id;
-    @NonNull
+
+    @NotBlank(message = USER_EMAIL_EMPTY)
+    @Email(message = USER_EMAIL_INVALID)
     private String email;
-    @NonNull
+
+    @NotBlank(message = USER_LOGIN_EMPTY)
     private String login;
-    private LocalDate birthday;
+
     private String name;
+
+    @PastOrPresent(message = USER_BIRTHDAY_IN_FUTURE)
+    private LocalDate birthday;
+
 }

@@ -1,13 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
-
-
 import java.time.LocalDate;
 import java.util.*;
 
@@ -25,13 +24,8 @@ public class FilmController {
         return films.values();
     }
 
-    // пост запрос
     @PostMapping
-    public Film create(@RequestBody Film film) {
-        log.debug("Request to create film: {}", film);
-
-        checkFilm(film);
-
+    public Film create(@Valid @RequestBody Film film) {
         film.setId(getNextId());
         films.put(film.getId(), film);
 
@@ -40,7 +34,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film updatedFilm) {
+    public Film update(@Valid @RequestBody Film updatedFilm) {
         log.debug("Request to update film: {}", updatedFilm);
 
         if (updatedFilm.getId() == null) {
@@ -56,8 +50,6 @@ public class FilmController {
             throw new NotFoundException(message);
         }
 
-        checkFilm(updatedFilm);
-
         film.setName(updatedFilm.getName());
         film.setDescription(updatedFilm.getDescription());
         film.setReleaseDate(updatedFilm.getReleaseDate());
@@ -67,31 +59,7 @@ public class FilmController {
         return film;
     }
 
-
     private long getNextId() {
         return films.keySet().stream().mapToLong(Long::longValue).max().orElse(0) + 1;
-    }
-
-    void checkFilm(Film film) {
-        if (film.getName() == null || film.getName().trim().isEmpty()) {
-            log.warn(FILM_NAME_EMPTY);
-            throw new ValidationException(FILM_NAME_EMPTY);
-        }
-        if (film.getDescription() != null &&
-                film.getDescription().trim().length() > MAX_DESCRIPTION_LENGTH) {
-            log.warn(FILM_DESCRIPTION_TOO_LONG);
-            throw new ValidationException(FILM_DESCRIPTION_TOO_LONG);
-        }
-
-        if (film.getReleaseDate() != null &&
-                film.getReleaseDate().isBefore(EARLIEST_RELEASE_DATE)) {
-            log.warn(FILM_RELEASE_DATE_TOO_EARLY);
-            throw new ValidationException(FILM_RELEASE_DATE_TOO_EARLY);
-        }
-
-        if (film.getDuration() != null && film.getDuration() <= 0) {
-            log.warn(FILM_DURATION_NOT_POSITIVE);
-            throw new ValidationException(FILM_DURATION_NOT_POSITIVE);
-        }
     }
 }

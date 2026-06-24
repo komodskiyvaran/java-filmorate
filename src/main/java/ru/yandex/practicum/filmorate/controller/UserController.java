@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +26,9 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        log.debug("Request to create user: {}", user);
+    public User create(@Valid @RequestBody User user) {
 
-        checkUser(user);
+        validName(user);
 
         user.setId(getNextId());
         users.add(user);
@@ -39,7 +38,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User updatedUser) {
+    public User update(@Valid @RequestBody User updatedUser) {
         log.debug("Request to update user: {}", updatedUser);
 
         if (updatedUser.getId() == null) {
@@ -54,7 +53,9 @@ public class UserController {
             log.warn(message);
             throw new NotFoundException(message);
         }
-        checkUser(updatedUser);
+
+        validName(updatedUser);
+
         user.setEmail(updatedUser.getEmail());
         user.setLogin(updatedUser.getLogin());
         user.setName(updatedUser.getName());
@@ -75,27 +76,9 @@ public class UserController {
                 .orElse(null);
     }
 
-    void checkUser(User user) {
-        if (user.getEmail() == null || user.getEmail().trim().isBlank()) {
-            log.warn(USER_EMAIL_EMPTY);
-            throw new ValidationException(USER_EMAIL_EMPTY);
-        } else if (!user.getEmail().contains("@")) {
-            log.warn(USER_EMAIL_INVALID);
-            throw new ValidationException(USER_EMAIL_INVALID);
-        }
-
-        if (user.getLogin() == null || user.getLogin().isBlank()) {
-            log.warn(USER_LOGIN_EMPTY);
-            throw new ValidationException(USER_LOGIN_EMPTY);
-        }
-
-        if (user.getName() == null || user.getName().trim().isBlank()) {
+    private void validName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
-        }
-
-        if (user.getBirthday() != null && user.getBirthday().isAfter(DATE_NOW)) {
-            log.warn(USER_BIRTHDAY_IN_FUTURE);
-            throw new ValidationException(USER_BIRTHDAY_IN_FUTURE);
         }
     }
 }
