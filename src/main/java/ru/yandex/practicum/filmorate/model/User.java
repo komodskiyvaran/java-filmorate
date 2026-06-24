@@ -3,12 +3,9 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
-
 import java.time.LocalDate;
-
 
 @Data
 @Builder
@@ -28,5 +25,4 @@ public class User {
 
     @PastOrPresent(message = USER_BIRTHDAY_IN_FUTURE)
     private LocalDate birthday;
-
 }

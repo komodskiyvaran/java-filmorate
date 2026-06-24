@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.exception;
 
 public class ErrorMessages {
-    private ErrorMessages() {}
+    private ErrorMessages() {
+    }
 
     public static final String FILM_NAME_EMPTY = "Film name cannot be empty.";
     public static final String FILM_DESCRIPTION_TOO_LONG = "Description length cannot exceed 200 characters.";
