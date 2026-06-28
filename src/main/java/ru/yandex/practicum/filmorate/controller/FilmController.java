@@ -7,16 +7,15 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
-import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private static final LocalDate EARLIEST_RELEASE_DATE = LocalDate.of(1895, 12, 28);
-    private static final int MAX_DESCRIPTION_LENGTH = 200;
     private final Map<Long, Film> films = new HashMap<>();
+    private long currentId = 0;
+
 
 
     @GetMapping
@@ -50,16 +49,20 @@ public class FilmController {
             throw new NotFoundException(message);
         }
 
-        film.setName(updatedFilm.getName());
-        film.setDescription(updatedFilm.getDescription());
-        film.setReleaseDate(updatedFilm.getReleaseDate());
-        film.setDuration(updatedFilm.getDuration());
+        updateFieldFilm(film, updatedFilm);
 
         log.info("Film updated successfully: {} (id={})", film.getName(), film.getId());
         return film;
     }
 
+    private void updateFieldFilm(Film film, Film updatedFilm) {
+        film.setName(updatedFilm.getName());
+        film.setDescription(updatedFilm.getDescription());
+        film.setReleaseDate(updatedFilm.getReleaseDate());
+        film.setDuration(updatedFilm.getDuration());
+    }
+
     private long getNextId() {
-        return films.keySet().stream().mapToLong(Long::longValue).max().orElse(0) + 1;
+        return ++currentId;
     }
 }
