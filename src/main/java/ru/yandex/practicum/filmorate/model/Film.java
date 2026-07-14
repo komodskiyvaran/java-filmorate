@@ -7,6 +7,8 @@ import lombok.*;
 import ru.yandex.practicum.filmorate.validation.ValidReleaseDate;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -14,6 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Film {
     private Long id;
+    private Set<Long> likes = new HashSet<>();
 
     @NotBlank (message = FILM_NAME_EMPTY)
     private String name;

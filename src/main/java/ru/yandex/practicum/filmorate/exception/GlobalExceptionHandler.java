@@ -13,6 +13,7 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -37,5 +38,12 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleNotFoundException(NotFoundException ex) {
         log.warn("Not found: {}", ex.getMessage());
         return Map.of("error", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Throwable.class)
+    public Map<String, String> handleThrowable(Throwable e) {
+        log.error("Internal server error", e);
+        return Map.of("error", "An unexpected error has occurred.");
     }
 }
