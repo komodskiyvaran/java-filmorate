@@ -21,6 +21,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Collection<Film> findAll() {
         return films.values();
     }
+
     @Override
     public Film findById(long id) {
         return films.values().stream()
@@ -78,5 +79,4 @@ public class InMemoryFilmStorage implements FilmStorage {
     private long getNextId() {
         return ++currentId;
     }
-
 }
