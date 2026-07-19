@@ -8,10 +8,6 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
-
-import static ru.yandex.practicum.filmorate.exception.ErrorMessages.FILM_LIKE_ALREADY_EXISTS;
-import static ru.yandex.practicum.filmorate.exception.ErrorMessages.FILM_LIKE_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -41,34 +37,16 @@ public class FilmService {
     }
 
     public void addLike(long id, long userId) {
-        Film film = filmStorage.findById(id);
         userStorage.findById(userId);
-
-        if (film.getLikes().contains(userId)) {
-            log.warn(FILM_LIKE_ALREADY_EXISTS);
-            return;
-        }
-
-        log.info("A user with ID {} liked a movie with ID {}", id, userId);
-        film.getLikes().add(userId);
+        filmStorage.addLike(id, userId);
     }
 
     public void removeLike(long id, long userId) {
-        Film film = filmStorage.findById(id);
         userStorage.findById(userId);
-
-        if (!film.getLikes().contains(userId)) {
-            log.warn(FILM_LIKE_NOT_FOUND);
-            return;
-        }
-        log.info("A user with ID {} unliked a movie with ID {}", id, userId);
-        film.getLikes().remove(userId);
+        filmStorage.removeLike(id, userId);
     }
 
     public Collection<Film> getPopularFilms(int count) {
-        return findAll().stream()
-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.getPopularFilms(count);
     }
 }

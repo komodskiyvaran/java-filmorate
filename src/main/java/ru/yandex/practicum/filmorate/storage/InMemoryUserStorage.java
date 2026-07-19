@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.ID_MUST_BE_SPECIFIED;
@@ -65,6 +66,55 @@ public class InMemoryUserStorage implements UserStorage {
         findById(id);
         log.info("The user with id = {} has been successfully deleted", id);
         users.remove(id);
+    }
+
+    @Override
+    public void addFriend(long userId, long friendId) {
+        User user = findById(userId);
+        User friend = findById(friendId);
+
+        if (user.getFriends().contains(friendId) && friend.getFriends().contains(userId)) {
+            log.warn(USER_ALREADY_FRIEND);
+            return;
+        }
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
+        log.info("Users with IDs {} and {} became friends.", userId, friendId);
+    }
+
+    @Override
+    public void removeFriend(long userId, long friendId) {
+        User user = findById(userId);
+        User friend = findById(friendId);
+
+        if (user.getFriends().contains(friendId) && friend.getFriends().contains(userId)) {
+            user.getFriends().remove(friendId);
+            friend.getFriends().remove(userId);
+            log.info("Users with IDs {} and {} are no longer friends",  userId, friendId);
+        } else {
+            String message = String.format(USER_NOT_FRIEND, userId, friendId);
+            log.warn(message);
+        }
+    }
+
+    @Override
+    public Collection<User> getFriends(long userId) {
+        return findById(userId).getFriends().stream()
+                .map(this::findById)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<User> getCommonFriends(long userId, long otherId) {
+        Set<Long> userFriends = findById(userId).getFriends();
+        Set<Long> otherFriends = findById(otherId).getFriends();
+
+        Set<Long> commonIds = new HashSet<>(userFriends);
+        commonIds.retainAll(otherFriends);
+
+        return commonIds.stream()
+                .map(this::findById)
+                .collect(Collectors.toList());
     }
 
     private void updateFieldUser(User user, User updatedUser) {

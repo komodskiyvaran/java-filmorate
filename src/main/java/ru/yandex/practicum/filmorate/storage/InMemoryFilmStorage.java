@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.ID_MUST_BE_SPECIFIED;
@@ -67,6 +68,39 @@ public class InMemoryFilmStorage implements FilmStorage {
         findById(id);
         log.info("The film with id = {} has been successfully deleted", id);
         films.remove(id);
+    }
+
+    @Override
+    public void addLike(long id, long userId) {
+        Film film = findById(id);
+
+        if (film.getLikes().contains(userId)) {
+            log.warn(FILM_LIKE_ALREADY_EXISTS);
+            return;
+        }
+
+        log.info("A user with ID {} liked a movie with ID {}", id, userId);
+        film.getLikes().add(userId);
+    }
+
+    @Override
+    public void removeLike(long id, long userId) {
+        Film film = findById(id);
+
+        if (!film.getLikes().contains(userId)) {
+            log.warn(FILM_LIKE_NOT_FOUND);
+            return;
+        }
+        log.info("A user with ID {} unliked a movie with ID {}", id, userId);
+        film.getLikes().remove(userId);
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count) {
+        return findAll().stream()
+                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     private void updateFieldFilm(Film film, Film updatedFilm) {
