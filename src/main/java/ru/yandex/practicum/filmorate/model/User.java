@@ -6,6 +6,8 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class User {
     private Long id;
+    private Set<Long> friends = new HashSet<>();
 
     @NotBlank(message = USER_EMAIL_EMPTY)
     @Email(message = USER_EMAIL_INVALID)

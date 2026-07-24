@@ -15,6 +15,12 @@ public class ErrorMessages {
     public static final String USER_BIRTHDAY_IN_FUTURE = "The birthday shouldn't be in the future";
 
     public static final String ID_MUST_BE_SPECIFIED = "Id must be specified.";
-    public static final String FILM_NOT_FOUND = "Film with id %d not found.";
-    public static final String USER_NOT_FOUND = "User with id %d not found.";
+    public static final String FILM_NOT_FOUND = "Film not found with id: ";
+    public static final String USER_NOT_FOUND = "User not found with id: ";
+
+    public static final String FILM_LIKE_ALREADY_EXISTS = "The user has already liked this film.";
+    public static final String FILM_LIKE_NOT_FOUND = "The user has not liked this film.";
+
+    public static final String USER_ALREADY_FRIEND = "Users are already friends.";
+    public static final String USER_NOT_FRIEND = "Users with IDs %d and %d were not friends!";
 }
