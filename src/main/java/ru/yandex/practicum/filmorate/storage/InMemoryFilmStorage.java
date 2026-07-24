@@ -49,18 +49,16 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new ValidationException(ID_MUST_BE_SPECIFIED);
         }
 
-        Film film = films.get(updatedFilm.getId());
-        if (film == null) {
+        if (!films.containsKey(updatedFilm.getId())) {
             String message = FILM_NOT_FOUND + updatedFilm.getId();
 
             log.warn(message);
             throw new NotFoundException(message);
         }
 
-        updateFieldFilm(film, updatedFilm);
-
-        log.info("Film updated successfully: {} (id={})", film.getName(), film.getId());
-        return film;
+        log.info("Film updated successfully: {} (id={})", updatedFilm.getName(), updatedFilm.getId());
+        films.put(updatedFilm.getId(), updatedFilm);
+        return updatedFilm;
     }
 
     @Override
@@ -101,13 +99,6 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
-    }
-
-    private void updateFieldFilm(Film film, Film updatedFilm) {
-        film.setName(updatedFilm.getName());
-        film.setDescription(updatedFilm.getDescription());
-        film.setReleaseDate(updatedFilm.getReleaseDate());
-        film.setDuration(updatedFilm.getDuration());
     }
 
     private long getNextId() {

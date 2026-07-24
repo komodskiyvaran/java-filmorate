@@ -29,7 +29,14 @@ public class FilmService {
     }
 
     public Film update(Film updatedFilm) {
-        return filmStorage.update(updatedFilm);
+        Film oldFilm = filmStorage.findById(updatedFilm.getId());
+
+        oldFilm.setName(updatedFilm.getName());
+        oldFilm.setDescription(updatedFilm.getDescription());
+        oldFilm.setReleaseDate(updatedFilm.getReleaseDate());
+        oldFilm.setDuration(updatedFilm.getDuration());
+
+        return filmStorage.update(oldFilm);
     }
 
     public void delete(long id) {
