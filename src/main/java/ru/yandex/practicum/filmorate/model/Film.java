@@ -29,4 +29,8 @@ public class Film {
 
     @Positive(message = FILM_DURATION_NOT_POSITIVE)
     private Long duration;
+
+    private Long mpaId;
+
+    private Set<Integer> genreIds;
 }

@@ -40,7 +40,7 @@ public class UserController {
         userService.delete(id);
     }
 
-    @PutMapping("/{id}/friends/{friendId}")
+/*    @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable("id") long userId,
                           @PathVariable long friendId) {
         userService.addFriend(userId, friendId);
@@ -61,5 +61,5 @@ public class UserController {
     public Collection<User> getCommonFriends(@PathVariable("id") long userId,
                                              @PathVariable long otherId) {
         return userService.getCommonFriends(userId, otherId);
-    }
+    }*/
 }

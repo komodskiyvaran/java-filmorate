@@ -13,6 +13,7 @@ public class ErrorMessages {
     public static final String USER_EMAIL_INVALID = "Email must contain '@'.";
     public static final String USER_LOGIN_EMPTY = "Login must be specified.";
     public static final String USER_BIRTHDAY_IN_FUTURE = "The birthday shouldn't be in the future";
+    public static final String USER_EMAIL_BUSY = "The user with this email already exists!";
 
     public static final String ID_MUST_BE_SPECIFIED = "Id must be specified.";
     public static final String FILM_NOT_FOUND = "Film not found with id: ";

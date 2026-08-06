@@ -46,4 +46,11 @@ public class GlobalExceptionHandler {
         log.error("Internal server error", e);
         return Map.of("error", "An unexpected error has occurred.");
     }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DuplicatedDataException.class)
+    public Map<String, String> handleDuplicatedData(DuplicatedDataException ex) {
+        log.warn("Duplicated data: {}", ex.getMessage());
+        return Map.of("error", ex.getMessage());
+    }
 }

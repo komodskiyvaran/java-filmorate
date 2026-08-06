@@ -15,7 +15,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class User {
     private Long id;
-    private Set<Long> friends = new HashSet<>();
 
     @NotBlank(message = USER_EMAIL_EMPTY)
     @Email(message = USER_EMAIL_INVALID)

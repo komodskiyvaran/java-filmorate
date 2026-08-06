@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.dal;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -14,7 +14,7 @@ import static ru.yandex.practicum.filmorate.exception.ErrorMessages.ID_MUST_BE_S
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage {
+public class FilmDbStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
     private long currentId = 0;
 
