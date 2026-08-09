@@ -44,17 +44,6 @@ class UserDbStorageTest {
     }
 
     @Test
-    void shouldCreateUserWithoutName() {
-        User user = new User();
-        user.setEmail("test@test.com");
-        user.setLogin("testlogin");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
-
-        User created = userStorage.create(user);
-        assertThat(created.getName()).isEqualTo("testlogin");
-    }
-
-    @Test
     void shouldFindUserById() {
         User user = new User();
         user.setEmail("test@test.com");

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dal;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.GenreRowMapper;
@@ -8,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor

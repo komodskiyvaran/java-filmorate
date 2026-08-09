@@ -32,6 +32,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String DELETE = "DELETE FROM films WHERE film_id = ?";
     private static final String ADD_LIKE = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String REMOVE_LIKE = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
+    private static final String DELETE_LIKES_BY_FILM =
+            "DELETE FROM film_likes WHERE film_id = ?";
     private static final String CHECK_LIKE = "SELECT COUNT(*) FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String GET_POPULAR = "SELECT f.*, r.rating_id, r.name AS rating_name FROM films f " +
             "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
@@ -143,6 +145,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     @Override
     public void delete(long id) {
         findById(id);
+
+        jdbc.update(DELETE_LIKES_BY_FILM, id);
+        deleteGenres(id);
         delete(DELETE, id);
     }
 
@@ -172,6 +177,14 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         if (count <= 0) {
             return Collections.emptyList();
         }
-        return jdbc.query(GET_POPULAR, mapper, count);
+
+        List<Film> films = jdbc.query(GET_POPULAR, mapper, count);
+
+        for (Film film : films) {
+            film.setMpa(loadMpa(film.getMpaId()));
+            film.setGenres(loadGenres(film.getId()));
+        }
+
+        return films;
     }
 }

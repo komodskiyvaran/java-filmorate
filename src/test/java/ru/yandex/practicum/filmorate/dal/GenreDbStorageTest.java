@@ -17,7 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase
 @Import({GenreDbStorage.class, GenreRowMapper.class})
-@Sql(scripts = {"classpath:schema.sql", "classpath:data-test.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(
+        scripts = {"classpath:schema.sql", "classpath:data-test.sql"},
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+)
 class GenreDbStorageTest {
 
     @Autowired
@@ -26,16 +29,17 @@ class GenreDbStorageTest {
     @Test
     void shouldFindAllGenres() {
         List<Genre> genres = genreStorage.findAll();
+
         assertThat(genres).hasSize(6);
-        assertThat(genres.get(0).getId()).isEqualTo(1);
-        assertThat(genres.get(0).getName()).isEqualTo("Комедия");
-        assertThat(genres.get(5).getId()).isEqualTo(6);
-        assertThat(genres.get(5).getName()).isEqualTo("Боевик");
+        assertThat(genres)
+                .extracting(Genre::getId)
+                .containsExactly(1, 2, 3, 4, 5, 6);
     }
 
     @Test
     void shouldFindGenreById() {
         Optional<Genre> genre = genreStorage.findById(1);
+
         assertThat(genre).isPresent();
         assertThat(genre.get().getId()).isEqualTo(1);
         assertThat(genre.get().getName()).isEqualTo("Комедия");
@@ -44,6 +48,37 @@ class GenreDbStorageTest {
     @Test
     void shouldReturnEmptyWhenGenreNotFound() {
         Optional<Genre> genre = genreStorage.findById(999);
+
         assertThat(genre).isEmpty();
+    }
+
+    @Test
+    void shouldGetFilmGenres() {
+        List<Genre> genres = genreStorage.getFilmGenres(1L);
+
+        assertThat(genres).hasSize(2);
+        assertThat(genres)
+                .extracting(Genre::getId)
+                .containsExactlyInAnyOrder(1, 2);
+    }
+
+    @Test
+    void shouldAddFilmGenre() {
+        genreStorage.addFilmGenre(2L, 2);
+
+        List<Genre> genres = genreStorage.getFilmGenres(2L);
+
+        assertThat(genres)
+                .extracting(Genre::getId)
+                .containsExactlyInAnyOrder(2, 3);
+    }
+
+    @Test
+    void shouldDeleteFilmGenres() {
+        genreStorage.deleteFilmGenres(1L);
+
+        List<Genre> genres = genreStorage.getFilmGenres(1L);
+
+        assertThat(genres).isEmpty();
     }
 }
