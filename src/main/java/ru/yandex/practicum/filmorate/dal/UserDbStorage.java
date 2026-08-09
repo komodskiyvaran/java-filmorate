@@ -1,30 +1,35 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.UserRowMapper;
+import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
-import static ru.yandex.practicum.filmorate.exception.ErrorMessages.ID_MUST_BE_SPECIFIED;
 
 @Slf4j
 @Repository
 public class UserDbStorage extends BaseRepository<User> implements UserStorage {
+
     private static final String FIND_ALL = "SELECT * FROM users";
     private static final String FIND_BY_ID = "SELECT * FROM users WHERE user_id = ?";
+    private static final String FIND_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
     private static final String INSERT = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
     private static final String UPDATE = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
     private static final String DELETE = "DELETE FROM users WHERE user_id = ?";
-    private static final String FIND_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
+    private static final String ADD_FRIEND = "INSERT INTO friendship (from_user_id, to_user_id) VALUES (?, ?)";
+    private static final String DELETE_FRIEND = "DELETE FROM friendship WHERE from_user_id = ? AND to_user_id = ?";
+    private static final String GET_FRIENDS = "SELECT u.* FROM users u " +
+            "JOIN friendship f ON u.user_id = f.to_user_id WHERE f.from_user_id = ?";
+    private static final String GET_COMMON_FRIENDS = "SELECT u.* FROM users u " +
+            "JOIN friendship f1 ON u.user_id = f1.to_user_id AND f1.from_user_id = ? " +
+            "JOIN friendship f2 ON u.user_id = f2.to_user_id AND f2.from_user_id = ?";
+    private static final String CHECK_FRIEND_EXISTS = "SELECT COUNT(*) FROM friendship WHERE from_user_id = ? AND to_user_id = ?";
 
     public UserDbStorage(JdbcTemplate jdbc, UserRowMapper mapper) {
         super(jdbc, mapper);
@@ -38,7 +43,12 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     @Override
     public User findById(long id) {
         return findOne(FIND_BY_ID, id)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND + id));
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return findOne(FIND_BY_EMAIL, email);
     }
 
     @Override
@@ -49,16 +59,6 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        try {
-            User user = jdbc.queryForObject(FIND_BY_EMAIL, mapper, email);
-            return Optional.ofNullable(user);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
-    @Override
     public User update(User user) {
         update(UPDATE, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
         return user;
@@ -66,64 +66,43 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
 
     @Override
     public void delete(long id) {
+        findById(id);
         delete(DELETE, id);
     }
 
-
-   /* @Override
+    @Override
     public void addFriend(long userId, long friendId) {
-        User user = findById(userId);
-        User friend = findById(friendId);
+        findById(userId);
+        findById(friendId);
 
-        if (user.getFriends().contains(friendId) && friend.getFriends().contains(userId)) {
-            log.warn(USER_ALREADY_FRIEND);
-            return;
+        Integer count = jdbc.queryForObject(CHECK_FRIEND_EXISTS, Integer.class, userId, friendId);
+        if (count > 0) {
+            throw new DuplicatedDataException(USER_ALREADY_FRIEND);
         }
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
-        log.info("Users with IDs {} and {} became friends.", userId, friendId);
+
+        jdbc.update(ADD_FRIEND, userId, friendId);
+        log.info("User {} added friend {}", userId, friendId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
-        User user = findById(userId);
-        User friend = findById(friendId);
+        findById(userId);
+        findById(friendId);
 
-        if (user.getFriends().contains(friendId) && friend.getFriends().contains(userId)) {
-            user.getFriends().remove(friendId);
-            friend.getFriends().remove(userId);
-            log.info("Users with IDs {} and {} are no longer friends",  userId, friendId);
-        } else {
-            String message = String.format(USER_NOT_FRIEND, userId, friendId);
-            log.warn(message);
-        }
+        int deleted = jdbc.update(DELETE_FRIEND, userId, friendId);
+        System.out.println("Deleted rows: " + deleted);
     }
 
     @Override
     public Collection<User> getFriends(long userId) {
-        return findById(userId).getFriends().stream()
-                .map(this::findById)
-                .collect(Collectors.toList());
+        findById(userId);
+        return jdbc.query(GET_FRIENDS, mapper, userId);
     }
 
     @Override
     public Collection<User> getCommonFriends(long userId, long otherId) {
-        Set<Long> userFriends = findById(userId).getFriends();
-        Set<Long> otherFriends = findById(otherId).getFriends();
-
-        Set<Long> commonIds = new HashSet<>(userFriends);
-        commonIds.retainAll(otherFriends);
-
-        return commonIds.stream()
-                .map(this::findById)
-                .collect(Collectors.toList());
+        findById(userId);
+        findById(otherId);
+        return jdbc.query(GET_COMMON_FRIENDS, mapper, userId, otherId);
     }
-
-    private void updateFieldUser(User user, User updatedUser) {
-        user.setEmail(updatedUser.getEmail());
-        user.setLogin(updatedUser.getLogin());
-        user.setName(updatedUser.getName());
-        user.setBirthday(updatedUser.getBirthday());
-    }*/
-
 }

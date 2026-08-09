@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
-public class BaseRepository <T> {
+public class BaseRepository<T> {
     protected final JdbcTemplate jdbc;
     protected final RowMapper<T> mapper;
 
@@ -23,7 +23,7 @@ public class BaseRepository <T> {
         try {
             T result = jdbc.queryForObject(query, mapper, params);
             return Optional.ofNullable(result);
-        } catch (EmptyResultDataAccessException ignored) {
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
@@ -42,22 +42,21 @@ public class BaseRepository <T> {
             return ps;
         }, keyHolder);
 
-        // Используй getKey() вместо getKeyAs(Long.class)
         Number key = keyHolder.getKey();
         if (key == null) {
-            throw new RuntimeException("Не удалось получить id");
+            throw new RuntimeException("Failed to retrieve generated ID");
         }
         return key.longValue();
     }
 
     protected void update(String query, Object... params) {
-        int rowsUpdated = jdbc.update(query, params);
-        if (rowsUpdated == 0) {
-            throw new RuntimeException("Не удалось обновить данные");
+        int rows = jdbc.update(query, params);
+        if (rows == 0) {
+            throw new RuntimeException("Failed to update data");
         }
     }
 
-    public boolean delete(String query, long id) {
+    protected boolean delete(String query, long id) {
         return jdbc.update(query, id) > 0;
     }
 }

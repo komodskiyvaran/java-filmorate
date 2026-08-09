@@ -6,8 +6,6 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Builder
