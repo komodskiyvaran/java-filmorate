@@ -9,7 +9,9 @@ import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.dal.mappers.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,38 +49,89 @@ class GenreDbStorageTest {
 
     @Test
     void shouldReturnEmptyWhenGenreNotFound() {
-        Optional<Genre> genre = genreStorage.findById(999);
-
-        assertThat(genre).isEmpty();
+        assertThat(genreStorage.findById(999)).isEmpty();
     }
 
     @Test
-    void shouldGetFilmGenres() {
-        List<Genre> genres = genreStorage.getFilmGenres(1L);
+    void shouldFindAllByIdsAndSilentlyDropUnknownIds() {
+        List<Genre> genres = genreStorage.findAllByIds(List.of(1, 2, 999));
 
-        assertThat(genres).hasSize(2);
-        assertThat(genres)
+        assertThat(genres).extracting(Genre::getId).containsExactlyInAnyOrder(1, 2);
+    }
+
+    @Test
+    void findAllByIdsShouldReturnEmptyListForEmptyInput() {
+        assertThat(genreStorage.findAllByIds(Collections.emptyList())).isEmpty();
+    }
+
+    @Test
+    void shouldGetGenresByFilmIdForSingleFilm() {
+        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresByFilmIds(List.of(1L));
+
+        assertThat(genresByFilm).containsOnlyKeys(1L);
+        assertThat(genresByFilm.get(1L))
                 .extracting(Genre::getId)
                 .containsExactlyInAnyOrder(1, 2);
     }
 
     @Test
-    void shouldAddFilmGenre() {
-        genreStorage.addFilmGenre(2L, 2);
+    void shouldGetGenresByFilmIdsForMultipleFilmsInOneQuery() {
+        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresByFilmIds(List.of(1L, 2L));
 
-        List<Genre> genres = genreStorage.getFilmGenres(2L);
+        assertThat(genresByFilm).containsOnlyKeys(1L, 2L);
+        assertThat(genresByFilm.get(1L)).extracting(Genre::getId).containsExactlyInAnyOrder(1, 2);
+        assertThat(genresByFilm.get(2L)).extracting(Genre::getId).containsExactly(3);
+    }
 
-        assertThat(genres)
+    @Test
+    void getGenresByFilmIdsShouldOmitFilmsWithoutGenres() {
+        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresByFilmIds(List.of(3L));
+
+        assertThat(genresByFilm).doesNotContainKey(3L);
+    }
+
+    @Test
+    void getGenresByFilmIdsShouldReturnEmptyMapForEmptyInput() {
+        assertThat(genreStorage.getGenresByFilmIds(Collections.emptyList())).isEmpty();
+    }
+
+    @Test
+    void shouldAddFilmGenres() {
+        genreStorage.addFilmGenres(2L, List.of(2));
+
+        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresByFilmIds(List.of(2L));
+
+        assertThat(genresByFilm.get(2L))
                 .extracting(Genre::getId)
                 .containsExactlyInAnyOrder(2, 3);
+    }
+
+    @Test
+    void addFilmGenresShouldDeduplicateIds() {
+        genreStorage.addFilmGenres(1L, List.of(4, 4, 4));
+
+        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresByFilmIds(List.of(1L));
+
+        assertThat(genresByFilm.get(1L))
+                .extracting(Genre::getId)
+                .containsExactlyInAnyOrder(1, 2, 4);
+    }
+
+    @Test
+    void addFilmGenresShouldDoNothingForEmptyInput() {
+        genreStorage.addFilmGenres(1L, Collections.emptyList());
+
+        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresByFilmIds(List.of(1L));
+
+        assertThat(genresByFilm.get(1L)).extracting(Genre::getId).containsExactlyInAnyOrder(1, 2);
     }
 
     @Test
     void shouldDeleteFilmGenres() {
         genreStorage.deleteFilmGenres(1L);
 
-        List<Genre> genres = genreStorage.getFilmGenres(1L);
+        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresByFilmIds(List.of(1L));
 
-        assertThat(genres).isEmpty();
+        assertThat(genresByFilm).doesNotContainKey(1L);
     }
 }

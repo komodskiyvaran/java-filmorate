@@ -89,18 +89,31 @@ public class UserService {
     }
 
     public void addFriend(long userId, long friendId) {
+        userStorage.findById(userId);
+        userStorage.findById(friendId);
+
+        if (userStorage.isFriend(userId, friendId)) {
+            throw new DuplicatedDataException(USER_ALREADY_FRIEND);
+        }
+
         userStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(long userId, long friendId) {
+        userStorage.findById(userId);
+        userStorage.findById(friendId);
+
         userStorage.removeFriend(userId, friendId);
     }
 
     public Collection<User> getFriends(long userId) {
+        userStorage.findById(userId);
         return userStorage.getFriends(userId);
     }
 
     public Collection<User> getCommonFriends(long userId, long otherId) {
+        userStorage.findById(userId);
+        userStorage.findById(otherId);
         return userStorage.getCommonFriends(userId, otherId);
     }
 

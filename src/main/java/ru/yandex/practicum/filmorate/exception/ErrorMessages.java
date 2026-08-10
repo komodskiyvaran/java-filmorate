@@ -10,7 +10,8 @@ public final class ErrorMessages {
     public static final String FILM_DURATION_NOT_POSITIVE = "Duration must be positive.";
     public static final String FILM_NOT_FOUND = "Film not found with id: ";
     public static final String FILM_MPA_NOT_FOUND = "MPA rating not found with id: ";
-    public static final String FILM_GENRE_NOT_FOUND = "Genre not found with id: ";
+    public static final String FILM_GENRE_NOT_FOUND = "Genre not found with id(s): ";
+    public static final String FILM_POPULAR_COUNT_NOT_POSITIVE = "Count must be positive.";
 
     public static final String USER_EMAIL_EMPTY = "Email must be specified.";
     public static final String USER_EMAIL_INVALID = "Email must contain '@'.";

@@ -4,13 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.UserRowMapper;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
+import static ru.yandex.practicum.filmorate.exception.ErrorMessages.USER_NOT_FOUND;
 
 @Slf4j
 @Repository
@@ -72,37 +71,29 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
 
     @Override
     public void addFriend(long userId, long friendId) {
-        findById(userId);
-        findById(friendId);
-
-        Integer count = jdbc.queryForObject(CHECK_FRIEND_EXISTS, Integer.class, userId, friendId);
-        if (count > 0) {
-            throw new DuplicatedDataException(USER_ALREADY_FRIEND);
-        }
-
         jdbc.update(ADD_FRIEND, userId, friendId);
         log.info("User {} added friend {}", userId, friendId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
-        findById(userId);
-        findById(friendId);
-
         int deleted = jdbc.update(DELETE_FRIEND, userId, friendId);
-        System.out.println("Deleted rows: " + deleted);
+        log.info("Removed {} friendship row(s) for {} -> {}", deleted, userId, friendId);
+    }
+
+    @Override
+    public boolean isFriend(long userId, long friendId) {
+        Integer count = jdbc.queryForObject(CHECK_FRIEND_EXISTS, Integer.class, userId, friendId);
+        return count != null && count > 0;
     }
 
     @Override
     public Collection<User> getFriends(long userId) {
-        findById(userId);
         return jdbc.query(GET_FRIENDS, mapper, userId);
     }
 
     @Override
     public Collection<User> getCommonFriends(long userId, long otherId) {
-        findById(userId);
-        findById(otherId);
         return jdbc.query(GET_COMMON_FRIENDS, mapper, userId, otherId);
     }
 }

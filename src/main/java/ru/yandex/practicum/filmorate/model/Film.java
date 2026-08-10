@@ -15,7 +15,6 @@ import java.util.*;
 @AllArgsConstructor
 public class Film {
     private Long id;
-    private Set<Long> likes = new HashSet<>();
 
     @NotBlank(message = FILM_NAME_EMPTY)
     private String name;
@@ -33,7 +32,7 @@ public class Film {
     private Mpa mpa;
 
     @Builder.Default
-    private List<Genre> genres = new ArrayList<>();  // ← List для сохранения порядка
+    private List<Genre> genres = new ArrayList<>();  // List для сохранения порядка
 
     public void setMpa(Mpa mpa) {
         this.mpa = mpa;
