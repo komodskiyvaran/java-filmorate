@@ -85,7 +85,10 @@ class GenreDbStorageTest {
 
     @Test
     void getGenresByFilmIdsShouldOmitFilmsWithoutGenres() {
-        Map<Long, List<Genre>> genresByFilm = genreStorage.getGenresByFilmIds(List.of(3L));
+        genreStorage.deleteFilmGenres(3L);
+
+        Map<Long, List<Genre>> genresByFilm =
+                genreStorage.getGenresByFilmIds(List.of(3L));
 
         assertThat(genresByFilm).doesNotContainKey(3L);
     }
