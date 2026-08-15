@@ -7,8 +7,7 @@ import lombok.*;
 import ru.yandex.practicum.filmorate.validation.ValidReleaseDate;
 import static ru.yandex.practicum.filmorate.exception.ErrorMessages.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Builder
@@ -16,9 +15,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class Film {
     private Long id;
-    private Set<Long> likes = new HashSet<>();
 
-    @NotBlank (message = FILM_NAME_EMPTY)
+    @NotBlank(message = FILM_NAME_EMPTY)
     private String name;
 
     @Size(max = 200, message = FILM_DESCRIPTION_TOO_LONG)
@@ -29,4 +27,17 @@ public class Film {
 
     @Positive(message = FILM_DURATION_NOT_POSITIVE)
     private Long duration;
+
+    private Long mpaId;
+    private Mpa mpa;
+
+    @Builder.Default
+    private List<Genre> genres = new ArrayList<>();  // List для сохранения порядка
+
+    public void setMpa(Mpa mpa) {
+        this.mpa = mpa;
+        if (mpa != null) {
+            this.mpaId = mpa.getId();
+        }
+    }
 }

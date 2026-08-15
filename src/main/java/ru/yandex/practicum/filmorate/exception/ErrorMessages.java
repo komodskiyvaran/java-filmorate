@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.exception;
 
-public class ErrorMessages {
+public final class ErrorMessages {
     private ErrorMessages() {
     }
 
@@ -8,19 +8,22 @@ public class ErrorMessages {
     public static final String FILM_DESCRIPTION_TOO_LONG = "Description length cannot exceed 200 characters.";
     public static final String FILM_RELEASE_DATE_TOO_EARLY = "Release date must be after 28 December 1895.";
     public static final String FILM_DURATION_NOT_POSITIVE = "Duration must be positive.";
+    public static final String FILM_NOT_FOUND = "Film not found with id: ";
+    public static final String FILM_MPA_NOT_FOUND = "MPA rating not found with id: ";
+    public static final String FILM_GENRE_NOT_FOUND = "Genre not found with id(s): ";
+    public static final String FILM_POPULAR_COUNT_NOT_POSITIVE = "Count must be positive.";
 
     public static final String USER_EMAIL_EMPTY = "Email must be specified.";
     public static final String USER_EMAIL_INVALID = "Email must contain '@'.";
     public static final String USER_LOGIN_EMPTY = "Login must be specified.";
-    public static final String USER_BIRTHDAY_IN_FUTURE = "The birthday shouldn't be in the future";
+    public static final String USER_LOGIN_CONTAINS_SPACE = "Login cannot contain spaces.";
+    public static final String USER_BIRTHDAY_IN_FUTURE = "Birthday cannot be in the future.";
+    public static final String USER_EMAIL_BUSY = "User with this email already exists.";
+    public static final String USER_NOT_FOUND = "User not found with id: ";
+    public static final String USER_ALREADY_FRIEND = "Users are already friends.";
+    public static final String USER_NOT_FRIEND = "Users with IDs %d and %d were not friends.";
 
     public static final String ID_MUST_BE_SPECIFIED = "Id must be specified.";
-    public static final String FILM_NOT_FOUND = "Film not found with id: ";
-    public static final String USER_NOT_FOUND = "User not found with id: ";
-
-    public static final String FILM_LIKE_ALREADY_EXISTS = "The user has already liked this film.";
-    public static final String FILM_LIKE_NOT_FOUND = "The user has not liked this film.";
-
-    public static final String USER_ALREADY_FRIEND = "Users are already friends.";
-    public static final String USER_NOT_FRIEND = "Users with IDs %d and %d were not friends!";
+    public static final String FILM_LIKE_ALREADY_EXISTS = "User has already liked this film.";
+    public static final String FILM_LIKE_NOT_FOUND = "User has not liked this film.";
 }
